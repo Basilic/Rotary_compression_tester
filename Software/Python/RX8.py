@@ -1,5 +1,9 @@
 #! python
 #
+########################################
+# Programme pour enregistrer les données d'un capteur de pression pour faire le diagnostique
+# d'un moteur rotatif
+########################################
 
 from Tkinter import *
 from serial import *
@@ -7,7 +11,7 @@ from serial.tools.list_ports import comports
 import tkFileDialog
 
 ########################################
-#
+#Efface le graphique et crée les lignes avec les unités
 ########################################
 def clear_graph():
             canvas.delete(ALL)
@@ -18,13 +22,13 @@ def clear_graph():
             canvas.create_text(25,200-60,text= " 60PSI")
             canvas.create_line(50,200-60,900,200-60)
 ########################################
-# 
+# Ouvre la fenetre pour demander ou sauvegarde l'aquisition
 ######################################## 
 def Record_as():
-           file = tkFileDialog.asksaveasfilename(title="Ouvrir une image",filetypes=[('png files','.png'),('all files','.*')])
-           print file
+           return tkFileDialog.asksaveasfilename(title="Enregistrer l'aquisition sous",filetypes=[('txt files','.txt'),('all files','.*')])
+           
 ########################################
-# 
+# Ouvre le port Com et enregistre les valeurs dans un fichier
 ########################################  
 def Aquisitionportcom():
             clear_graph()
@@ -35,9 +39,8 @@ def Aquisitionportcom():
             s.databits = 8
             s.open()
             fin = str(value.get())
-            print file
-            fichier=open(file,"a")
-            #fichier=open("Text.txt","a")
+            filesave = Record_as()
+            fichier=open(filesave,"a")
             for j in range(0, int(fin)):
                 clear_graph()
                 for i in range(0,850):
@@ -50,21 +53,20 @@ def Aquisitionportcom():
                        print new
                        canvas.create_line(50+i,int(old),i+51,int(200-float(Val)*10))
                        old=int(200-float(Val)*10)
-                       
             s.close()
             fichier.close()
             canvas.update()
             
 ########################################
-#
+#Boucle principale, crée la fenetre
 ########################################
 def main():
         global fenetre
         global canvas
         global value
-        global file
+        global filesave
         fenetre = Tk()
-
+        filesave=""
         Frame_Graphique = Frame(fenetre)
         
         canvas = Canvas(Frame_Graphique, width=900, height=200, background= 'white')
@@ -103,7 +105,7 @@ def main():
 
 
 ########################################
-#
+#Lancement du script
 ########################################
 if __name__ == '__main__':
     main()
