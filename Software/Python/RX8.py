@@ -1,8 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 ########################################
 # Programme pour enregistrer les données d'un capteur de pression pour faire le diagnostique
 # d'un moteur rotatif
+#
+# lib serial : https://github.com/pyserial/pyserial
 ########################################
 
 from Tkinter import *
@@ -34,7 +37,6 @@ def Record_as():
 
 def Load_file():
 	return 0
-
 
 ########################################
 # Renvoie la liste des port com disponible
@@ -106,12 +108,8 @@ def Aquisitionportcom():
 			canvas.create_line(50+i,int(old),i+51,int(200-float(Val)))
 			old=int(200-float(Val))
 			canvas.update()
-		
-			
 	fichier.close()
-
-
-
+	CloseCom()
 
 ########################################
 # Ouvre le port Com choisi
@@ -126,7 +124,6 @@ def OpenCom():
         PortSerie.databits = 8
         PortSerie.open()
 	
-
 ########################################
 # Ferme le port com
 ########################################
