@@ -8,7 +8,6 @@
   
 void setup() {
   // initialize both serial ports:
-  ZeroBar = analogRead(A3);
   Serial.begin(115200,SERIAL_8E1);
   }
 
@@ -18,9 +17,9 @@ void loop() {
     StartTime=micros();
     //Value=String(Valeur,1);
     //Valeur=(AnalogValeur-ZeroBar)*(4.95/1024.0)*(200.0/4.5);
-    Valeur=abs((((AnalogValeur*4.92)/1024.0))-0.51)*50;
+    Valeur=abs((((AnalogValeur*4.784)/1024.0))-0.51)*50; //4,91 avec pile 9V
     //Valeur2=(AnalogValeur*4.92)/1024.0;
-    Serial.println(String(Valeur,1)+";"+String(StartTime)); 
-    //Serial.println(String(Valeur,1)+";"+String(Valeur2,2));
-    delay(3);    
+    Serial.println(String(Valeur,0)+";"+String(StartTime)); 
+    //Serial.println(String(Valeur,0)+";"+String("4425874631254"));
+    delay(1);    
 }
