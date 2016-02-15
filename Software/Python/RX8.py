@@ -14,30 +14,91 @@ import tkFileDialog
 import sys
 import glob
 import time
-
+import os
 
 ########################################
 #Efface le graphique et crée les lignes avec les unités
 ########################################
 def clear_graph():
+	global filesave
+	global filetopen
+
 	canvas.delete(ALL)
+	canvas['scrollregion']=(0,0,1150,200)
 	canvas.create_text(25,100,text= "100PSI")
-	canvas.create_line(50,100,900,100)
+	canvas.create_line(50,100,15350,100)
 	canvas.create_text(25,200-145,text= "145PSI")
-	canvas.create_line(50,200-145,900,200-145)
+	canvas.create_line(50,200-145,15350,200-145)
 	canvas.create_text(25,200-60,text= " 60PSI")
-	canvas.create_line(50,200-60,900,200-60)
+	canvas.create_line(50,200-60,15350,200-60)
+	filesave=''
+	fileopen=''
 
 ########################################
 # Ouvre la fenetre pour demander ou sauvegarde l'aquisition
 ######################################## 
 def Record_as():
 	global filesave
+	global filetopen
 	filesave=tkFileDialog.asksaveasfilename(title="Enregistrer l'aquisition sous",filetypes=[('txt files','.txt'),('all files','.*')])
+	# ajouter des testes sur l'extension de fichier et l'existance au besoin la suppresion
 
+	if os.path.exists(filesave)== True:
+		os.remove(filesave)
+	filetopen=filesave
+
+########################################
+# Ouvre la fenetre pour demander le fichier a charger le lance le chargement et le tracer du graphique
+######################################## 
 def Load_file():
-	return 0
+	global filetopen
+	global filesave
+	filetopen=tkFileDialog.askopenfilename(title="Ouvrir l'aquisition",filetypes=[('txt files','.txt'),('all files','.*')])
+	filesave=''
+	Load_List()
+	Trace_graph()
 
+######################################## 
+# Charge les valeur du fichier a ouvrir en mémoire
+######################################## 
+def Load_List():
+	global filetopen
+	global listevalue
+
+	fichier=open(filetopen,'r')
+	for line in fichier:
+		data=(float(line[0:line.find(';')]),int(line[line.find(';')+1:line.find('\r')]))	
+		listevalue.append(data)
+
+########################################
+# Tracer la courbe avec les valeurs en mémoire
+######################################## 
+def Trace_graph():
+	global listevalue
+	firstpoint = listevalue[1]
+	lastpoint = listevalue[len(listevalue)-1]
+	dimension = len(listevalue) #(int(lastpoint[1])-int(firstpoint[1]))/1000
+	
+	canvas.delete(ALL)
+	canvas['scrollregion']=(0,0,dimension,200)
+
+	canvas.create_text(25,100,text= "100PSI")
+	canvas.create_line(50,100,dimension,100)
+	canvas.create_text(25,200-145,text= "145PSI")
+	canvas.create_line(50,200-145,dimension,200-145)
+	canvas.create_text(25,200-60,text= " 60PSI")
+	canvas.create_line(50,200-60,dimension,200-60)
+	
+	OldX=50
+	OldY=200
+
+
+	for i in range (1, len(listevalue)-1):
+		canvas.create_line(OldX,OldY,50+i,200-listevalue[i][0])
+		OldX=50+i
+		OldY=200-listevalue[i][0]
+	canvas.update()
+	
 ########################################
 # Renvoie la liste des port com disponible
 ######################################## 
@@ -97,7 +158,7 @@ def Aquisitionportcom():
 
 	while time.time() < FinAquisition:
 		clear_graph()
-		for i in range(0,850):
+		for i in range(0,1150):
 			new=PortSerie.readline()
 			fichier.write(new)
 			Tms=new[new.find(';')+1:-1]
@@ -110,6 +171,8 @@ def Aquisitionportcom():
 			canvas.update()
 	fichier.close()
 	CloseCom()
+	Load_List()
+	Trace_graph()
 
 ########################################
 # Ouvre le port Com choisi
@@ -158,25 +221,37 @@ def main():
 	global EtatCom
 	global PortSerie
 	global value
+	global listevalue 
+	global filetopen
 	
-
-	EtatCom = "Close"
-        fenetre = Tk()
+	#Initialisation de variable global
+	filetopen=''
         filesave=""
+	listevalue = [(0,0)]
+	EtatCom = "Close"
+
+
+        fenetre = Tk()
+
         Frame_Graphique = Frame(fenetre)
         
-        canvas = Canvas(Frame_Graphique, width=900, height=200, background= 'white')
-        Frame_Option = Frame(fenetre)
-        
-        clear_graph()
-        canvas.pack()
+        canvas = Canvas(Frame_Graphique, width=1200, height=200,scrollregion=(0,0,1150,200), background= 'white')
+	hbar=Scrollbar(Frame_Graphique,orient=HORIZONTAL)
+	hbar.pack(side=BOTTOM,fill=X)
+	hbar.config(command=canvas.xview) 
+        canvas.config(width=1200,height=200)
+	canvas.config(xscrollcommand=hbar.set)
+        canvas.pack(side=LEFT,expand=True,fill=BOTH)
 
+        clear_graph()
+
+	Frame_Option = Frame(fenetre)
         bouton_A= Button(Frame_Option, text= "Aquisition", command=Aquisitionportcom)
 	bouton_Com = Button(Frame_Option, text= "Ouvrir", command = ChangeCom)
 
         menubar= Menu(fenetre)
         menufichier=Menu(menubar,tearoff=0)
-        #menufichier.add_command(label="Charger",command=Load_file)
+        menufichier.add_command(label="Charger un fichier",command=Load_file)
         menufichier.add_command(label="Choix fichier de sauvegarde",command=Record_as)
         menufichier.add_separator()
         menufichier.add_command(label="Effacer",command=clear_graph)
