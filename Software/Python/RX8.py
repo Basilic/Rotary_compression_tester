@@ -266,7 +266,7 @@ def main():
         menubar= Menu(fenetre)
         menufichier=Menu(menubar,tearoff=0)
         menufichier.add_command(label="Charger un fichier",command=Load_file)
-        menufichier.add_command(label="Choix fichier de sauvegarde",command=Record_as)
+        #menufichier.add_command(label="Choix fichier de sauvegarde",command=Record_as)
         menufichier.add_separator()
         menufichier.add_command(label="Effacer",command=clear_graph)
         menufichier.add_command(label="Quitter",command=fenetre.quit)
@@ -282,8 +282,10 @@ def main():
 
 	portdeCom=List_Port()
 	ComPortNumber = StringVar(fenetre)
-        ComPortNumber.set(portdeCom[0]) # default value
-
+	try:
+	        ComPortNumber.set(portdeCom[0]) # default value
+	except:
+		ComPortNumber.set(0)
         listePortCom = apply(OptionMenu, (Frame_Option, ComPortNumber)+ tuple(portdeCom))
         listePortCom.pack(side= RIGHT, padx=0, pady=0)
        
