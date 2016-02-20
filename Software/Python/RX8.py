@@ -108,13 +108,13 @@ def Trace_graph():
 		OldX=50+i
 		OldY=200-listevalue[i][0]
 		if max<listevalue[i][0]:
-			max=listevalue[i][0]
+			max=int(listevalue[i][0])
 			pointi=listevalue[i][1]
 			point=i
 		if listevalue[i][0] < 10 and max > 10:
 			if lastmax != 0:
 				RPM = int(1000000*60/(pointi-lastmax))
-				canvas.create_text(point+50,20, text=str(max)+"@"+str(RPM))
+				canvas.create_text(point+50,20, text=str(max)+"@"+str(RPM)+"tr/min")
 			else:
 				canvas.create_text(pointi+50,200-max-20, text=max)
 			canvas.create_line(50+point,200-max-10,50+point,200-max+10,fill="red")
