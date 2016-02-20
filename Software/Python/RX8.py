@@ -26,13 +26,11 @@ def clear_graph():
 	canvas.delete(ALL)
 	canvas['scrollregion']=(0,0,1150,200)
 	canvas.create_text(25,100,text= "100PSI")
-	canvas.create_line(50,100,15350,100)
+	canvas.create_line(50,100,1150,100)
 	canvas.create_text(25,200-145,text= "145PSI")
-	canvas.create_line(50,200-145,15350,200-145)
+	canvas.create_line(50,200-145,1150,200-145)
 	canvas.create_text(25,200-60,text= " 60PSI")
-	canvas.create_line(50,200-60,15350,200-60)
-	filesave=''
-	fileopen=''
+	canvas.create_line(50,200-60,1150,200-60)
 
 ########################################
 # Ouvre la fenetre pour demander ou sauvegarde l'aquisition
@@ -40,11 +38,14 @@ def clear_graph():
 def Record_as():
 	global filesave
 	global filetopen
-	filesave=tkFileDialog.asksaveasfilename(title="Enregistrer l'aquisition sous",filetypes=[('txt files','.txt'),('all files','.*')])
-	# ajouter des testes sur l'extension de fichier et l'existance au besoin la suppresion
 
+	#ouverture de la fenetre de dialogue save as
+	filesave=tkFileDialog.asksaveasfilename(title="Enregistrer l'aquisition sous",filetypes=[('txt files','.txt')])
+
+	#Si le fichier existe déjà on l'efface
 	if os.path.exists(filesave)== True:
 		os.remove(filesave)
+	#fichier a ouvrir = fichier de sauvegarde
 	filetopen=filesave
 
 ########################################
@@ -64,17 +65,22 @@ def Load_file():
 def Load_List():
 	global filetopen
 	global listevalue
+	listevalue[:]=[]
 
 	fichier=open(filetopen,'r')
 	for line in fichier:
-		data=(float(line[0:line.find(';')]),int(line[line.find(';')+1:line.find('\r')]))	
-		listevalue.append(data)
+		try:
+			data=(float(line[0:line.find(';')]),int(line[line.find(';')+1:line.find('\r')]))	
+			listevalue.append(data)
+		except:
+			data=0
 
 ########################################
 # Tracer la courbe avec les valeurs en mémoire
 ######################################## 
 def Trace_graph():
 	global listevalue
+	max=0
 	firstpoint = listevalue[1]
 	lastpoint = listevalue[len(listevalue)-1]
 	dimension = len(listevalue) #(int(lastpoint[1])-int(firstpoint[1]))/1000
@@ -97,6 +103,14 @@ def Trace_graph():
 		canvas.create_line(OldX,OldY,50+i,200-listevalue[i][0])
 		OldX=50+i
 		OldY=200-listevalue[i][0]
+		if max<listevalue[i][0]:
+			max=listevalue[i][0]
+			point=i
+		if listevalue[i][0] < 20 and max > 20:
+			canvas.create_text(point+50,200-max-20, text=max)
+			#canvas.create_line(50+point,0,50+point,200)
+			max=20
+
 	canvas.update()
 	
 ########################################
