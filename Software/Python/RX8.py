@@ -81,6 +81,10 @@ def Load_List():
 def Trace_graph():
 	global listevalue
 	max=0
+	lastpoint=0
+	RPM=0.0
+	pointi = 0
+	lastmax=0
 	firstpoint = listevalue[1]
 	lastpoint = listevalue[len(listevalue)-1]
 	dimension = len(listevalue) #(int(lastpoint[1])-int(firstpoint[1]))/1000
@@ -105,11 +109,17 @@ def Trace_graph():
 		OldY=200-listevalue[i][0]
 		if max<listevalue[i][0]:
 			max=listevalue[i][0]
+			pointi=listevalue[i][1]
 			point=i
-		if listevalue[i][0] < 20 and max > 20:
-			canvas.create_text(point+50,200-max-20, text=max)
-			#canvas.create_line(50+point,0,50+point,200)
-			max=20
+		if listevalue[i][0] < 10 and max > 10:
+			if lastmax != 0:
+				RPM = int(1000000*60/(pointi-lastmax))
+				canvas.create_text(point+50,20, text=str(max)+"@"+str(RPM))
+			else:
+				canvas.create_text(pointi+50,200-max-20, text=max)
+			canvas.create_line(50+point,200-max-10,50+point,200-max+10,fill="red")
+			lastmax=int(pointi)
+			max=10
 
 	canvas.update()
 	
@@ -282,10 +292,12 @@ def main():
 
 	portdeCom=List_Port()
 	ComPortNumber = StringVar(fenetre)
+
 	try:
 	        ComPortNumber.set(portdeCom[0]) # default value
 	except:
 		ComPortNumber.set(0)
+
         listePortCom = apply(OptionMenu, (Frame_Option, ComPortNumber)+ tuple(portdeCom))
         listePortCom.pack(side= RIGHT, padx=0, pady=0)
        
