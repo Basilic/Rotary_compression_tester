@@ -5,7 +5,7 @@
   double  Valeur2=0;
   String Value;
   unsigned long StartTime;
-//#define External_ref // Comment this if you not use LM4040 on AREF pin
+#define External_ref // Comment this if you not use LM4040 on AREF pin
 
 #ifdef External_ref
   #define Voltage_ref 4.1
