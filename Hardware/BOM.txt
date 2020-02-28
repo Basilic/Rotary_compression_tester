@@ -1,0 +1,6 @@
+Arduino nano 5V 16Mhz
+Condensateur 100nF
+LM4040-4.1
+Resistance 220 Ohms
+Connecteur pile 9V
+Sonde pression a visé 0-200PSI lineaire 0-5V
